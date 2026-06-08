@@ -32,6 +32,3 @@ Objetivos e requisitos do TP1 mantidos:
 ## MVP implementado
 - Registrar transações (entrada/saída)
 - Listar transações
-
-## Planejamento e documentação
-Veja [fernando_araujo_TP1_planejamento.md](/fernando_araujo_TP1_planejamento.md) para o plano detalhado do TP1 (modelos, endpoints e próximos passos).
