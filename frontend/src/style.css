@@ -1,0 +1,14 @@
+* { box-sizing: border-box; font-family: Inter, Arial, sans-serif; }
+body { margin: 0; background: #f5f7fb; color: #222; }
+.app-container { max-width: 900px; margin: 28px auto; padding: 16px; }
+header { text-align: center; margin-bottom: 20px; }
+.panel { background: #fff; padding: 16px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); margin-bottom: 16px; }
+.transaction-form label { display:block; margin-bottom:8px; }
+.transaction-form input, .transaction-form textarea, .transaction-form select { width:100%; padding:8px; margin-top:4px; }
+.transaction-list { list-style:none; padding:0; margin:0; }
+.transaction-item { display:flex; justify-content:space-between; align-items:flex-start; padding:12px 8px; border-bottom:1px solid #eee; }
+.transaction-item .desc { margin:6px 0; color:#555; }
+.transaction-item .amount { font-weight:600; }
+button.delete { background:#ff6b6b; color:white; border:none; padding:6px 10px; border-radius:6px; cursor:pointer; }
+button.delete:hover { opacity:0.9 }
+.error { color: #b00020 }

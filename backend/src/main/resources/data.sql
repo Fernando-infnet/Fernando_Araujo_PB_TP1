@@ -1,0 +1,2 @@
+-- initial transactions data (left empty by default)
+-- add SQL inserts here if you want seed transactions for development
