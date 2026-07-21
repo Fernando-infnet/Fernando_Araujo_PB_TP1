@@ -7,4 +7,5 @@ import com.example.monolith.domain.User;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
+    boolean existsByEmailIgnoreCase(String email);
 }

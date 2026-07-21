@@ -1,17 +1,7 @@
-# Java
-/backend/target/
-*.class
-*.log
-*.jar
-*.war
-*.iml
-/.idea
+backend/target/
+backend/data/
+frontend/node_modules/
+frontend/dist/
+.idea/
 .vscode/
-
-# Node
-/frontend/node_modules/
-/frontend/dist/
-/frontend/.vite/
-
-# OS
-.DS_Store
+*.log
