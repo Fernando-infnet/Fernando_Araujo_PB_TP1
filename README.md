@@ -3,6 +3,7 @@
 ## VÍDEO SOBRE PROJETO
 
 [![Veja o vídeo](https://img.youtube.com/vi/KcNkJDCJnZY/maxresdefault.jpg)](https://youtu.be/KcNkJDCJnZY)
+*Clique para acessar o vídeo*
 
 Monólito Spring Boot + React cujo domínio inicial é uma carteira digital. O objetivo atual não é reproduzir um banco completo: é entregar uma base pequena e consistente para usuários, carteiras e lançamentos, preparada para evoluir em trabalhos posteriores.
 
