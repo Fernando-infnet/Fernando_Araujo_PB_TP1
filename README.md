@@ -1,5 +1,9 @@
 # Wallet / Plataforma Bancária Digital
 
+## VÍDEO SOBRE PROJETO
+
+https://youtu.be/KcNkJDCJnZY
+
 Monólito Spring Boot + React cujo domínio inicial é uma carteira digital. O objetivo atual não é reproduzir um banco completo: é entregar uma base pequena e consistente para usuários, carteiras e lançamentos, preparada para evoluir em trabalhos posteriores.
 
 ## Objetivo e evolução
