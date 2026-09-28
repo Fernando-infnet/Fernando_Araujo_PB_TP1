@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.example.monolith.exception.BusinessException;
 import com.example.monolith.exception.ResourceNotFoundException;
+import com.example.monolith.exception.RemoteServiceException;
+import feign.RetryableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
 @ControllerAdvice
@@ -26,6 +28,16 @@ public class GlobalExceptionHandler {
                     .map(field -> field.getField() + ": " + field.getDefaultMessage()).orElse("Dados inválidos")
                 : error.getMessage();
         return response(HttpStatus.BAD_REQUEST, message);
+    }
+
+    @ExceptionHandler(RemoteServiceException.class)
+    public ResponseEntity<Map<String, Object>> handleRemoteService(RemoteServiceException error) {
+        return response(error.getStatus(), error.getMessage());
+    }
+
+    @ExceptionHandler(RetryableException.class)
+    public ResponseEntity<Map<String, Object>> handleUnavailableService(RetryableException error) {
+        return response(HttpStatus.SERVICE_UNAVAILABLE, "Microsserviço de transações indisponível");
     }
 
     private ResponseEntity<Map<String, Object>> response(HttpStatus status, String message) {

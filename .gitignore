@@ -1,5 +1,7 @@
 backend/target/
 backend/data/
+transaction-service/target/
+transaction-service/data/
 frontend/node_modules/
 frontend/dist/
 .idea/

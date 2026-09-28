@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.monolith.service.PersistenceService;
+import com.example.monolith.service.TransactionGatewayService;
 
 import jakarta.validation.Valid;
 
@@ -16,15 +17,22 @@ import jakarta.validation.Valid;
 @CrossOrigin(origins = "http://localhost:5173")
 public class WalletController {
     private final PersistenceService service;
-    public WalletController(PersistenceService service) { this.service = service; }
+    private final TransactionGatewayService transactions;
+    public WalletController(PersistenceService service, TransactionGatewayService transactions) {
+        this.service = service; this.transactions = transactions;
+    }
 
     @PostMapping @ResponseStatus(HttpStatus.CREATED)
     public WalletView create(@Valid @RequestBody CreateWallet input) { return service.createWallet(input); }
     @GetMapping("/{id}") public WalletView get(@PathVariable Long id) { return service.getWallet(id); }
     @GetMapping("/user/{userId}") public List<WalletView> byUser(@PathVariable Long userId) { return service.listWalletsByUser(userId); }
-    @GetMapping("/{id}/balance") public BalanceView balance(@PathVariable Long id) { return service.balance(id); }
+    @GetMapping("/{id}/balance") public BalanceView balance(@PathVariable Long id) {
+        service.getWallet(id);
+        return transactions.balance(id);
+    }
     @GetMapping("/{id}/transactions")
     public List<TransactionView> transactions(@PathVariable Long id, @RequestParam(defaultValue = "50") int limit) {
-        return service.listTransactions(id, limit);
+        service.getWallet(id);
+        return transactions.list(id, limit);
     }
 }

@@ -5,6 +5,13 @@
 [![Veja o vídeo](https://img.youtube.com/vi/KcNkJDCJnZY/maxresdefault.jpg)](https://youtu.be/KcNkJDCJnZY)
 *Clique para acessar o vídeo*
 
+## ENTREGAS TP4 E TP5
+
+- [TP4 — Arquitetura orientada a eventos](TP4/README.md)
+- [TP5 — Implantação e manutenção em produção](TP5/README.md)
+
+Cada pasta possui sua documentação, checklist e espaço destacado para o vídeo da respectiva demonstração.
+
 Monólito Spring Boot + React cujo domínio inicial é uma carteira digital. O objetivo atual não é reproduzir um banco completo: é entregar uma base pequena e consistente para usuários, carteiras e lançamentos, preparada para evoluir em trabalhos posteriores.
 
 ## Objetivo e evolução
