@@ -1,6 +1,8 @@
 package com.example.transactions.repository;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,4 +13,5 @@ import com.example.transactions.domain.Transaction;
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
     List<Transaction> findByWalletIdOrderByCreatedAtDesc(Long walletId, Pageable pageable);
+    Optional<Transaction> findByExternalReference(UUID externalReference);
 }

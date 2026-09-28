@@ -14,6 +14,7 @@ import com.example.monolith.client.TransactionServiceClient;
 import com.example.monolith.exception.BusinessException;
 import com.example.monolith.repository.UserRepository;
 import com.example.monolith.repository.WalletRepository;
+import com.example.monolith.repository.WalletEventOutboxRepository;
 import com.example.monolith.service.PersistenceService;
 
 @SpringBootTest
@@ -22,10 +23,11 @@ class PersistenceIntegrationTests {
     @Autowired PersistenceService service;
     @Autowired WalletRepository wallets;
     @Autowired UserRepository users;
+    @Autowired WalletEventOutboxRepository outbox;
     @MockBean TransactionServiceClient transactionServiceClient;
 
     @BeforeEach
-    void clean() { wallets.deleteAll(); users.deleteAll(); }
+    void clean() { outbox.deleteAll(); wallets.deleteAll(); users.deleteAll(); }
 
     @Test
     void persistsUserAndWalletRelationship() {
@@ -35,6 +37,11 @@ class PersistenceIntegrationTests {
         assertThat(service.getUser(user.id()).email()).isEqualTo("ada@example.com");
         assertThat(service.getWallet(wallet.id()).currency()).isEqualTo("BRL");
         assertThat(service.listWalletsByUser(user.id())).extracting(WalletView::id).containsExactly(wallet.id());
+        assertThat(outbox.findAll()).singleElement().satisfies(event -> {
+            assertThat(event.getWalletId()).isEqualTo(wallet.id());
+            assertThat(event.getCurrency()).isEqualTo("BRL");
+            assertThat(event.getPublishedAt()).isNull();
+        });
     }
 
     @Test

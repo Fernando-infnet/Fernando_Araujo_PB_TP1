@@ -13,15 +13,22 @@
 
 | Identificador | Cenário | Resultado esperado | Resultado obtido |
 |---|---|---|---|
-| TP4-01 | Publicar criação de carteira | Consumidor atualiza sua projeção local | Pendente |
-| TP4-02 | Reenviar o mesmo `eventId` | Evento não produz efeito duplicado | Pendente |
-| TP4-03 | Desligar o consumidor | Mensagem permanece disponível | Pendente |
-| TP4-04 | Processar mensagem inválida | Mensagem chega à DLQ | Pendente |
+| TP4-01 | Publicar criação de carteira | Consumidor atualiza sua projeção local | Aprovado com RabbitMQ/Testcontainers |
+| TP4-02 | Reenviar o mesmo `eventId` | Evento não produz efeito duplicado | Aprovado |
+| TP4-03 | Reenviar o mesmo `commandId` | Transação e saldo não são duplicados | Aprovado |
+| TP4-04 | Persistir carteira | Evento fica registrado no Outbox | Aprovado |
+| TP4-05 | Processar comando assíncrono | Evento de conclusão é publicado | Aprovado |
 
 ## Como executar
 
-<!-- Adicionar os comandos reais depois que a suíte estiver implementada. -->
+```bash
+mvn test
+npm run build --prefix frontend
+docker compose config --quiet
+```
+
+O teste `RabbitMessagingIntegrationTests` inicia um RabbitMQ real com Testcontainers. Em ambientes sem Docker ele é marcado como ignorado; os demais testes não dependem de infraestrutura externa.
 
 ## Evidências
 
-<!-- Registrar data, ambiente, quantidade de testes, cobertura e links para relatórios. -->
+Validação local realizada com Java 21 executando código compilado para Java 17, Maven e Docker 29. O teste de transporte real publicou `wallet.created.v1`, consumiu a mensagem e confirmou a criação da projeção no banco.

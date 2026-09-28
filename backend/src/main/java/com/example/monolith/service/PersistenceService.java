@@ -23,9 +23,11 @@ import com.example.monolith.repository.WalletRepository;
 public class PersistenceService {
     private final UserRepository users;
     private final WalletRepository wallets;
+    private final WalletEventOutboxService walletEvents;
 
-    public PersistenceService(UserRepository users, WalletRepository wallets) {
-        this.users = users; this.wallets = wallets;
+    public PersistenceService(UserRepository users, WalletRepository wallets,
+                              WalletEventOutboxService walletEvents) {
+        this.users = users; this.wallets = wallets; this.walletEvents = walletEvents;
     }
 
     public UserView createUser(CreateUser input) {
@@ -51,7 +53,9 @@ public class PersistenceService {
 
     public WalletView createWallet(CreateWallet input) {
         String currency = input.currency().toUpperCase(Locale.ROOT);
-        return walletView(wallets.save(new Wallet(requireUser(input.userId()), currency)));
+        Wallet wallet = wallets.save(new Wallet(requireUser(input.userId()), currency));
+        walletEvents.recordWalletCreated(wallet);
+        return walletView(wallet);
     }
 
     @Transactional(readOnly = true)

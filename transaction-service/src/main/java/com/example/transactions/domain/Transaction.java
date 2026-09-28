@@ -1,6 +1,7 @@
 package com.example.transactions.domain;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 import org.hibernate.envers.Audited;
 
@@ -38,13 +39,22 @@ public class Transaction extends BaseEntity {
     @Column(length = 255)
     private String description;
 
+    @Column(name = "external_reference", unique = true, updatable = false)
+    private UUID externalReference;
+
     protected Transaction() {}
 
     public Transaction(Long walletId, TransactionType type, BigDecimal amount, String description) {
+        this(walletId, type, amount, description, null);
+    }
+
+    public Transaction(Long walletId, TransactionType type, BigDecimal amount, String description,
+                       UUID externalReference) {
         this.walletId = walletId;
         this.type = type;
         this.amount = amount;
         this.description = description;
+        this.externalReference = externalReference;
     }
 
     public Long getId() { return id; }
@@ -52,5 +62,6 @@ public class Transaction extends BaseEntity {
     public TransactionType getType() { return type; }
     public BigDecimal getAmount() { return amount; }
     public String getDescription() { return description; }
+    public UUID getExternalReference() { return externalReference; }
     public void setDescription(String description) { this.description = description; }
 }

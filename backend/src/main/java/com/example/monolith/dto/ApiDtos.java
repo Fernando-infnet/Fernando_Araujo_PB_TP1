@@ -2,6 +2,7 @@ package com.example.monolith.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import com.example.monolith.domain.TransactionType;
 
@@ -31,4 +32,5 @@ public final class ApiDtos {
     public record TransactionView(Long id, Long walletId, TransactionType type, BigDecimal amount,
                                   String description, LocalDateTime createdAt, LocalDateTime updatedAt) {}
     public record HistoryView(Number revision, String operation, LocalDateTime revisionAt, Object data) {}
+    public record CommandAccepted(UUID commandId, String status) {}
 }

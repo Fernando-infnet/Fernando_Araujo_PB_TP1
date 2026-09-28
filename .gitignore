@@ -2,6 +2,7 @@ backend/target/
 backend/data/
 transaction-service/target/
 transaction-service/data/
+messaging-contracts/target/
 frontend/node_modules/
 frontend/dist/
 .idea/

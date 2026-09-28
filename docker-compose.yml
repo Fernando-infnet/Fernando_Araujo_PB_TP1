@@ -1,4 +1,20 @@
 services:
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: wallet
+      RABBITMQ_DEFAULT_PASS: wallet
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
   postgres:
     image: postgres:16-alpine
     environment:
@@ -32,5 +48,6 @@ services:
       retries: 10
 
 volumes:
+  rabbitmq_data:
   wallet_postgres_data:
   transaction_postgres_data:

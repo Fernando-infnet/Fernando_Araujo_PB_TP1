@@ -3,30 +3,28 @@ package com.example.transactions;
 import static com.example.transactions.dto.TransactionDtos.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
-import com.example.transactions.client.WalletClient;
+import com.example.contracts.WalletCreatedEvent;
 import com.example.transactions.domain.TransactionType;
+import com.example.transactions.domain.WalletLedger;
 import com.example.transactions.exception.BusinessException;
 import com.example.transactions.exception.ResourceNotFoundException;
 import com.example.transactions.repository.TransactionRepository;
 import com.example.transactions.repository.WalletLedgerRepository;
+import com.example.transactions.repository.ProcessedMessageRepository;
+import com.example.transactions.messaging.WalletEventListener;
 import com.example.transactions.service.HistoryService;
 import com.example.transactions.service.TransactionService;
-
-import feign.FeignException;
-import feign.Request;
-import feign.RequestTemplate;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -35,13 +33,15 @@ class TransactionServiceIntegrationTests {
     @Autowired HistoryService history;
     @Autowired TransactionRepository transactions;
     @Autowired WalletLedgerRepository ledgers;
-    @MockBean WalletClient wallets;
+    @Autowired ProcessedMessageRepository processed;
+    @Autowired WalletEventListener walletEvents;
 
     @BeforeEach
     void clean() {
         transactions.deleteAll();
         ledgers.deleteAll();
-        when(wallets.getWallet(1L)).thenReturn(wallet(1L, "BRL"));
+        processed.deleteAll();
+        ledgers.save(new WalletLedger(1L, "BRL"));
     }
 
     @Test
@@ -74,16 +74,34 @@ class TransactionServiceIntegrationTests {
     }
 
     @Test
-    void rejectsUnknownWalletReportedByWalletService() {
-        Request request = Request.create(Request.HttpMethod.GET, "/api/wallets/99", java.util.Map.of(), null,
-                new RequestTemplate());
-        when(wallets.getWallet(99L)).thenThrow(new FeignException.NotFound(
-                "not found", request, null, java.util.Map.of()));
-
+    void rejectsWalletThatWasNotSynchronizedByEvent() {
         assertThatThrownBy(() -> service.balance(99L)).isInstanceOf(ResourceNotFoundException.class);
     }
 
-    private WalletView wallet(Long id, String currency) {
-        return new WalletView(id, 10L, currency, LocalDateTime.now(), LocalDateTime.now());
+    @Test
+    void consumesWalletEventIdempotently() {
+        UUID eventId = UUID.randomUUID();
+        WalletCreatedEvent event = WalletCreatedEvent.create(eventId, Instant.now(), 2L, 10L, "USD");
+
+        walletEvents.onWalletCreated(event);
+        walletEvents.onWalletCreated(event);
+
+        assertThat(ledgers.findById(2L)).hasValueSatisfying(ledger ->
+                assertThat(ledger.getCurrency()).isEqualTo("USD"));
+        assertThat(processed.count()).isEqualTo(1);
+    }
+
+    @Test
+    void processesTheSameCommandOnlyOnce() {
+        UUID commandId = UUID.randomUUID();
+        CreateTransaction input = new CreateTransaction(
+                1L, TransactionType.CREDIT, new BigDecimal("15.00"), "Comando");
+
+        TransactionView first = service.createFromCommand(commandId, input);
+        TransactionView duplicate = service.createFromCommand(commandId, input);
+
+        assertThat(duplicate.id()).isEqualTo(first.id());
+        assertThat(transactions.count()).isEqualTo(1);
+        assertThat(service.balance(1L).balance()).isEqualByComparingTo("15.00");
     }
 }

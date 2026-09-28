@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.monolith.service.TransactionGatewayService;
+import com.example.monolith.messaging.TransactionCommandPublisher;
 
 import jakarta.validation.Valid;
 
@@ -16,7 +17,10 @@ import jakarta.validation.Valid;
 @CrossOrigin(origins = "http://localhost:5173")
 public class TransactionController {
     private final TransactionGatewayService service;
-    public TransactionController(TransactionGatewayService service) { this.service = service; }
+    private final TransactionCommandPublisher commands;
+    public TransactionController(TransactionGatewayService service, TransactionCommandPublisher commands) {
+        this.service = service; this.commands = commands;
+    }
 
     @PostMapping @ResponseStatus(HttpStatus.CREATED)
     public TransactionView create(@Valid @RequestBody CreateTransaction input) { return service.create(input); }
@@ -25,4 +29,11 @@ public class TransactionController {
     @DeleteMapping("/{id}") @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) { service.delete(id); }
     @GetMapping("/{id}/history") public List<HistoryView> history(@PathVariable Long id) { return service.history(id); }
+
+    @PostMapping("/async")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public CommandAccepted createAsync(@Valid @RequestBody CreateTransaction input) {
+        var command = commands.request(input);
+        return new CommandAccepted(command.commandId(), "PENDING");
+    }
 }

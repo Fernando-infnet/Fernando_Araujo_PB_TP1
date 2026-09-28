@@ -24,8 +24,5 @@ public final class TransactionDtos {
 
     public record BalanceView(Long walletId, String currency, BigDecimal balance) {}
 
-    public record WalletView(Long id, Long userId, String currency,
-                             LocalDateTime createdAt, LocalDateTime updatedAt) {}
-
     public record HistoryView(Number revision, String operation, LocalDateTime revisionAt, Object data) {}
 }
