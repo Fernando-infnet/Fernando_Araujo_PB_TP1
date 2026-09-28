@@ -1,0 +1,113 @@
+name: CI/CD
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Testar serviços e gerar cobertura
+        run: mvn --batch-mode verify
+      - name: Testar e construir frontend
+        run: |
+          npm ci --prefix frontend
+          npm test --prefix frontend
+          npm run build --prefix frontend
+      - name: Validar Compose e Kubernetes
+        run: |
+          docker compose config --quiet
+          kubectl kustomize k8s > /tmp/wallet-platform.yaml
+          test -s /tmp/wallet-platform.yaml
+      - name: Publicar relatórios de cobertura
+        uses: actions/upload-artifact@v4
+        with:
+          name: cobertura-jacoco
+          path: "**/target/site/jacoco"
+          if-no-files-found: error
+
+  images:
+    needs: test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - image: wallet-service
+            dockerfile: backend/Dockerfile
+          - image: transaction-service
+            dockerfile: transaction-service/Dockerfile
+          - image: frontend
+            dockerfile: frontend/Dockerfile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        if: github.event_name != 'pull_request'
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/metadata-action@v5
+        id: meta
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}
+          tags: |
+            type=sha
+            type=ref,event=tag
+            type=raw,value=latest,enable={{is_default_branch}}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    if: github.event_name == 'workflow_dispatch'
+    needs: images
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configurar acesso ao cluster
+        run: |
+          test -n "$KUBE_CONFIG"
+          mkdir -p "$RUNNER_TEMP/kube"
+          printf '%s' "$KUBE_CONFIG" | base64 --decode > "$RUNNER_TEMP/kube/config"
+          chmod 600 "$RUNNER_TEMP/kube/config"
+          echo "KUBECONFIG=$RUNNER_TEMP/kube/config" >> "$GITHUB_ENV"
+      - name: Implantar imagens do commit
+        working-directory: k8s
+        run: |
+          kustomize edit set image \
+            ghcr.io/OWNER/wallet-service:latest=ghcr.io/${{ github.repository_owner }}/wallet-service:sha-${GITHUB_SHA::7} \
+            ghcr.io/OWNER/transaction-service:latest=ghcr.io/${{ github.repository_owner }}/transaction-service:sha-${GITHUB_SHA::7} \
+            ghcr.io/OWNER/frontend:latest=ghcr.io/${{ github.repository_owner }}/frontend:sha-${GITHUB_SHA::7}
+          kubectl apply -k .
+          kubectl rollout status deployment/backend -n wallet-platform --timeout=180s
+          kubectl rollout status deployment/transaction-service -n wallet-platform --timeout=180s
+          kubectl rollout status deployment/frontend -n wallet-platform --timeout=180s

@@ -2,10 +2,10 @@
 
 ## Preparação
 
-- [ ] Pipeline concluído com sucesso.
-- [ ] Imagens disponíveis no registry.
-- [ ] Cluster e ferramentas de observabilidade acessíveis.
-- [ ] Dados de demonstração e plano de contingência preparados.
+- [ ] Substituir `OWNER`, senhas de demonstração e domínio do Ingress.
+- [ ] Executar o pipeline e publicar as imagens no GHCR.
+- [ ] Preparar o cluster com Metrics Server e controlador de Ingress.
+- [ ] Abrir aplicação, RabbitMQ, Grafana e GitHub Actions.
 
 ## Roteiro
 
@@ -23,6 +23,6 @@
 
 ## Vídeo
 
-- Link: <!-- inserir depois da gravação e publicação -->
-- Duração: <!-- informar -->
-- Data da gravação: <!-- informar -->
+- Link: adicionar também em [README.md](README.md) após publicar.
+- Duração sugerida: 8 a 12 minutos.
+- Data da gravação: preencher antes da entrega.

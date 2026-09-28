@@ -1,0 +1,27 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: wallet-platform
+resources:
+  - namespace.yaml
+  - infrastructure.yaml
+  - applications.yaml
+  - autoscaling.yaml
+  - ingress.yaml
+configMapGenerator:
+  - name: wallet-config
+    literals:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_USERNAME=wallet
+      - DB_URL=jdbc:postgresql://wallet-db:5432/wallet
+      - DB_USERNAME=wallet
+      - TRANSACTION_DB_URL=jdbc:postgresql://transaction-db:5432/transactions
+      - TRANSACTION_DB_USERNAME=transactions
+      - ZIPKIN_ENDPOINT=http://tempo:9411/api/v2/spans
+secretGenerator:
+  - name: wallet-secrets
+    literals:
+      - RABBITMQ_PASSWORD=change-me
+      - DB_PASSWORD=change-me
+      - TRANSACTION_DB_PASSWORD=change-me
+generatorOptions:
+  disableNameSuffixHash: true

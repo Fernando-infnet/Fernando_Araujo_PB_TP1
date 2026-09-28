@@ -1,6 +1,6 @@
 # Wallet / Plataforma Bancária Digital
 
-## VÍDEO SOBRE PROJETO
+## Vídeo do TP3
 
 [![Veja o vídeo](https://img.youtube.com/vi/KcNkJDCJnZY/maxresdefault.jpg)](https://youtu.be/KcNkJDCJnZY)
 *Clique para acessar o vídeo*
@@ -12,14 +12,17 @@
 
 Cada pasta possui sua documentação, checklist e espaço destacado para o vídeo da respectiva demonstração.
 
+> Os vídeos do TP4 e do TP5 ainda precisam ser gravados pelo autor e vinculados no `README.md` de cada entrega.
+
 Monólito Spring Boot + React cujo domínio inicial é uma carteira digital. O objetivo atual não é reproduzir um banco completo: é entregar uma base pequena e consistente para usuários, carteiras e lançamentos, preparada para evoluir em trabalhos posteriores.
 
 ## Objetivo e evolução
 
 - **TP1:** monólito em camadas e API REST para contas e transações.
-- **TP2 (estado atual):** persistência JPA/Spring Data, integridade, consultas e histórico auditável.
-- **TP3:** separação gradual por módulos e possível extração de transações como microsserviço.
-- **Futuro:** autenticação/autorização, observabilidade, antifraude e arquitetura distribuída.
+- **TP2:** persistência JPA/Spring Data, integridade, consultas e histórico auditável.
+- **TP3:** extração das transações para um microsserviço independente.
+- **TP4:** comunicação orientada a eventos com RabbitMQ, Outbox, retry, DLQ e idempotência.
+- **TP5:** Docker, Kubernetes, observabilidade com Grafana/Prometheus/Loki/Tempo e CI/CD.
 
 ## Design da persistência
 
@@ -95,6 +98,15 @@ Outros endpoints:
 | `GET`, `PATCH`, `DELETE` | `/api/transactions/{id}` | Consulta/corrige descrição/exclui lançamento |
 
 ## Execução
+
+### Plataforma completa do TP5
+
+```bash
+docker compose up -d --build
+./scripts/smoke-test.sh
+```
+
+A aplicação fica em `http://localhost:3000`. Consulte [TP5/README.md](TP5/README.md) para implantação, operação e demonstração.
 
 ### Desenvolvimento rápido com H2 persistente
 

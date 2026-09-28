@@ -1,12 +1,16 @@
+name: wallet-platform
+
 services:
   rabbitmq:
     image: rabbitmq:3.13-management-alpine
+    command: ["sh", "-c", "rabbitmq-plugins enable --offline rabbitmq_prometheus && rabbitmq-server"]
     environment:
       RABBITMQ_DEFAULT_USER: wallet
       RABBITMQ_DEFAULT_PASS: wallet
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "${RABBITMQ_AMQP_PORT:-5672}:5672"
+      - "${RABBITMQ_MANAGEMENT_PORT:-15672}:15672"
+      - "${RABBITMQ_METRICS_PORT:-15692}:15692"
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     healthcheck:
@@ -22,7 +26,7 @@ services:
       POSTGRES_USER: wallet
       POSTGRES_PASSWORD: wallet
     ports:
-      - "5433:5432"
+      - "${WALLET_DB_PORT:-5433}:5432"
     volumes:
       - wallet_postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -38,7 +42,7 @@ services:
       POSTGRES_USER: transactions
       POSTGRES_PASSWORD: transactions
     ports:
-      - "5434:5432"
+      - "${TRANSACTION_DB_PORT:-5434}:5432"
     volumes:
       - transaction_postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -47,7 +51,143 @@ services:
       timeout: 3s
       retries: 10
 
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    image: wallet-platform/wallet-service:local
+    environment:
+      SPRING_PROFILES_ACTIVE: postgres
+      DB_URL: jdbc:postgresql://postgres:5432/wallet
+      DB_USERNAME: wallet
+      DB_PASSWORD: wallet
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USERNAME: wallet
+      RABBITMQ_PASSWORD: wallet
+      ZIPKIN_ENDPOINT: http://tempo:9411/api/v2/spans
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/actuator/health/readiness"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+
+  transaction-service:
+    build:
+      context: .
+      dockerfile: transaction-service/Dockerfile
+    image: wallet-platform/transaction-service:local
+    environment:
+      SPRING_PROFILES_ACTIVE: postgres
+      TRANSACTION_DB_URL: jdbc:postgresql://transaction-postgres:5432/transactions
+      TRANSACTION_DB_USERNAME: transactions
+      TRANSACTION_DB_PASSWORD: transactions
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USERNAME: wallet
+      RABBITMQ_PASSWORD: wallet
+      ZIPKIN_ENDPOINT: http://tempo:9411/api/v2/spans
+    ports:
+      - "${TRANSACTION_SERVICE_PORT:-8081}:8081"
+    depends_on:
+      transaction-postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8081/actuator/health/readiness"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    image: wallet-platform/frontend:local
+    ports:
+      - "${FRONTEND_PORT:-3000}:8080"
+    depends_on:
+      backend:
+        condition: service_healthy
+      transaction-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    command: ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.path=/prometheus"]
+    volumes:
+      - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    depends_on:
+      backend:
+        condition: service_healthy
+      transaction-service:
+        condition: service_healthy
+
+  tempo:
+    image: grafana/tempo:2.6.1
+    command: ["-config.file=/etc/tempo.yml"]
+    volumes:
+      - ./observability/tempo.yml:/etc/tempo.yml:ro
+      - tempo_data:/var/tempo
+    ports:
+      - "3200:3200"
+      - "9411:9411"
+
+  loki:
+    image: grafana/loki:3.2.0
+    command: ["-config.file=/etc/loki/local-config.yaml"]
+    volumes:
+      - ./observability/loki.yml:/etc/loki/local-config.yaml:ro
+      - loki_data:/loki
+    ports:
+      - "3100:3100"
+
+  promtail:
+    image: grafana/promtail:3.2.0
+    command: ["-config.file=/etc/promtail/config.yml"]
+    volumes:
+      - ./observability/promtail.yml:/etc/promtail/config.yml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - loki
+
+  grafana:
+    image: grafana/grafana:11.2.2
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - grafana_data:/var/lib/grafana
+    ports:
+      - "3001:3000"
+    depends_on:
+      - prometheus
+      - loki
+      - tempo
+
 volumes:
   rabbitmq_data:
   wallet_postgres_data:
   transaction_postgres_data:
+  prometheus_data:
+  tempo_data:
+  loki_data:
+  grafana_data:

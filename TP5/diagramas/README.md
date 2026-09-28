@@ -1,11 +1,10 @@
 # Diagramas do TP5
 
-Armazenar neste diretório:
+Os diagramas executáveis estão incorporados nos documentos Markdown para permanecerem versionados e fáceis de abrir no link da entrega:
 
-- infraestrutura Docker/Compose;
-- arquitetura do cluster Kubernetes;
-- pipeline de CI/CD;
-- fluxo de métricas, logs e traces;
-- implantação, rolling update e rollback.
+- arquitetura do cluster: [KUBERNETES.md](../KUBERNETES.md);
+- implantação e componentes Docker: [IMPLANTACAO.md](../IMPLANTACAO.md);
+- fluxo de métricas, logs e traces: [OBSERVABILIDADE.md](../OBSERVABILIDADE.md);
+- pipeline de CI/CD: [CI-CD.md](../CI-CD.md).
 
 Os diagramas podem ser mantidos em Mermaid dentro dos documentos ou exportados como SVG/PNG para a apresentação.

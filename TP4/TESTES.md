@@ -18,6 +18,7 @@
 | TP4-03 | Reenviar o mesmo `commandId` | Transação e saldo não são duplicados | Aprovado |
 | TP4-04 | Persistir carteira | Evento fica registrado no Outbox | Aprovado |
 | TP4-05 | Processar comando assíncrono | Evento de conclusão é publicado | Aprovado |
+| TP4-06 | Publicar evento inválido | Três tentativas são esgotadas e a mensagem segue para a DLQ | Aprovado com RabbitMQ/Testcontainers |
 
 ## Como executar
 
@@ -31,4 +32,4 @@ O teste `RabbitMessagingIntegrationTests` inicia um RabbitMQ real com Testcontai
 
 ## Evidências
 
-Validação local realizada com Java 21 executando código compilado para Java 17, Maven e Docker 29. O teste de transporte real publicou `wallet.created.v1`, consumiu a mensagem e confirmou a criação da projeção no banco.
+Validação local realizada com Java 21 executando código compilado para Java 17, Maven e Docker 29. Os testes de transporte real publicam `wallet.created.v1`, confirmam a criação da projeção no banco e verificam que uma mensagem inválida, depois dos retries configurados, recebe o cabeçalho `x-death` e chega à fila `wallet.dead-letter`.

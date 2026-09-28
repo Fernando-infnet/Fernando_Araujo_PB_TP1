@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.example.transactions.exception.BusinessException;
 import com.example.transactions.exception.ResourceNotFoundException;
-import com.example.transactions.exception.WalletServiceUnavailableException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -27,11 +26,6 @@ public class GlobalExceptionHandler {
                     .map(field -> field.getField() + ": " + field.getDefaultMessage()).orElse("Dados inválidos")
                 : error.getMessage();
         return response(HttpStatus.BAD_REQUEST, message);
-    }
-
-    @ExceptionHandler(WalletServiceUnavailableException.class)
-    public ResponseEntity<Map<String, Object>> unavailable(WalletServiceUnavailableException error) {
-        return response(HttpStatus.SERVICE_UNAVAILABLE, error.getMessage());
     }
 
     private ResponseEntity<Map<String, Object>> response(HttpStatus status, String message) {

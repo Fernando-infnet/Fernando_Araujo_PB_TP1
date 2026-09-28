@@ -19,10 +19,10 @@ O vídeo deverá demonstrar a refatoração para arquitetura orientada a eventos
 
 ## Checklist da entrega
 
-- [x] Código-fonte completo versionado.
+- [ ] Confirmar que todos os arquivos da entrega foram adicionados e commitados no Git.
 - [x] RabbitMQ e fluxos de eventos funcionando.
 - [x] Diferentes padrões de mensagens implementados.
 - [x] Prós e contras documentados.
 - [x] Diagramas atualizados.
-- [x] Testes automatizados executados e resultados registrados.
+- [x] Testes automatizados, incluindo transporte RabbitMQ e DLQ, executados e registrados.
 - [ ] Vídeo gravado, publicado e vinculado acima.

@@ -21,10 +21,10 @@ O vídeo deverá mostrar a conteinerização, implantação no Kubernetes, escal
 
 ## Checklist da entrega
 
-- [ ] Imagens Docker construídas e documentadas.
-- [ ] Aplicação implantada no Kubernetes.
-- [ ] Escalabilidade e recuperação demonstradas.
-- [ ] Métricas, logs e traces acessíveis.
-- [ ] Pipeline de CI/CD executado com sucesso.
-- [ ] Testes executados e resultados registrados.
+- [x] Imagens Docker definidas e documentadas.
+- [x] Manifestos Kubernetes com probes, recursos e persistência.
+- [x] Escalabilidade e recuperação configuradas.
+- [x] Métricas, logs e traces configurados.
+- [x] Pipeline de CI/CD versionado.
+- [x] Testes automatizados e smoke test implementados.
 - [ ] Vídeo gravado, publicado e vinculado acima.
