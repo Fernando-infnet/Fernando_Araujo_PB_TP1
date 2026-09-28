@@ -8,7 +8,7 @@
 - [x] ConfigMaps
 - [x] Secrets
 - [x] Ingress
-- [x] Readiness e liveness probes
+- [x] Startup, readiness e liveness probes
 - [x] Requests e limits
 - [x] Horizontal Pod Autoscaler
 - [x] Persistência dos componentes stateful
@@ -34,7 +34,7 @@ Os arquivos estão em `k8s/` e são compostos pelo Kustomize. Use `kubectl kusto
 
 ## Escalabilidade e atualização
 
-Wallet e Transaction Service começam com duas réplicas. O HPA escala cada um entre duas e cinco réplicas quando a utilização média de CPU ultrapassa 70%. Requests permitem o cálculo do HPA, limits evitam consumo sem limite, probes impedem tráfego antes da prontidão e reiniciam processos travados. Deployments usam rolling update por padrão e mantêm o histórico necessário para `kubectl rollout undo`.
+Wallet e Transaction Service começam com duas réplicas. O HPA escala cada um entre duas e cinco réplicas quando a utilização média de CPU ultrapassa 70%. Requests permitem o cálculo do HPA, limits evitam consumo sem limite, startup probes protegem a inicialização, readiness probes impedem tráfego antes da prontidão e liveness probes reiniciam processos travados. Deployments usam rolling update por padrão e mantêm o histórico necessário para `kubectl rollout undo`.
 
 ## Evidências
 

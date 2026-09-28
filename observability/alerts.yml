@@ -1,0 +1,29 @@
+groups:
+  - name: wallet-platform
+    rules:
+      - alert: WalletServiceUnavailable
+        expr: up{job=~"wallet-service|transaction-service"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $labels.job }} está indisponível"
+          description: "O Prometheus não coleta métricas de {{ $labels.instance }} há 2 minutos."
+      - alert: HighHttp5xxRate
+        expr: |
+          (sum by (job) (rate(http_server_requests_seconds_count{status=~"5.."}[5m]))
+          / clamp_min(sum by (job) (rate(http_server_requests_seconds_count[5m])), 0.001)) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Taxa elevada de erros em {{ $labels.job }}"
+          description: "Mais de 5% das requisições retornaram 5xx nos últimos 5 minutos."
+      - alert: RabbitMqDeadLetterQueueNotEmpty
+        expr: rabbitmq_queue_messages{queue=~".*dead.*|.*dlq.*"} > 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Há mensagens em uma fila de erro"
+          description: "A fila {{ $labels.queue }} contém {{ $value }} mensagem(ns)."

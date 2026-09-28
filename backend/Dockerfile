@@ -9,4 +9,6 @@ WORKDIR /app
 COPY --from=build /workspace/backend/target/monolith-*.jar app.jar
 USER app
 EXPOSE 8080
+HEALTHCHECK --interval=10s --timeout=5s --start-period=20s --retries=6 \
+  CMD wget -qO- http://localhost:8080/actuator/health/readiness || exit 1
 ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75.0", "-jar", "/app/app.jar"]

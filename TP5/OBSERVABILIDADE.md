@@ -2,7 +2,7 @@
 
 ## Métricas
 
-Os serviços expõem `/actuator/prometheus` por Micrometer. O Prometheus coleta os dois serviços e o plugin Prometheus do RabbitMQ a cada 15 segundos. O Grafana recebe os data sources Prometheus, Loki e Tempo automaticamente por provisioning.
+Os serviços expõem `/actuator/prometheus` por Micrometer. O Prometheus coleta os dois serviços e o plugin Prometheus do RabbitMQ a cada 15 segundos. O Grafana recebe os data sources Prometheus, Loki e Tempo e o dashboard **Wallet Platform — Operação** automaticamente por provisioning.
 
 Métricas mínimas:
 
@@ -14,7 +14,7 @@ Métricas mínimas:
 
 ## Logs agregados
 
-Os logs Java carregam `traceId` e `spanId` no padrão de saída. O Promtail descobre containers pelo socket do Docker e envia stdout/stderr ao Loki, com labels de serviço, container e stream. No Explore do Grafana, uma consulta como `{service="backend"} |= "<traceId>"` reúne os registros de uma operação.
+No perfil `postgres`, os serviços escrevem logs JSON em stdout com aplicação, nível, `traceId`, `spanId` e `correlationId`. Requisições aceitam `X-Correlation-ID` ou recebem um identificador novo, devolvido no mesmo header; consumidores AMQP colocam o identificador do contrato no contexto dos logs. O Promtail descobre containers pelo socket do Docker, interpreta o envelope Docker e o JSON da aplicação e envia os registros ao Loki com labels de serviço, container, aplicação e nível. No Explore do Grafana, uma consulta como `{service="backend"} |= "<correlationId>"` reúne os registros de uma operação.
 
 ## Rastreamento distribuído
 
@@ -28,6 +28,8 @@ Micrometer Tracing com Brave instrumenta requisições HTTP e observações do S
 | Erros HTTP | taxa 5xx acima de 5% por 5 minutos | Alta | Localizar trace e verificar rollback |
 | DLQ crescendo | mensagens em `wallet.dead-letter` acima de zero | Alta | Corrigir causa antes de reprocessar |
 | Fila acumulada | crescimento contínuo por 10 minutos | Média | Verificar consumidor e avaliar escala |
+
+Os três primeiros alertas estão versionados em `observability/alerts.yml` e carregados pelo Prometheus. Nesta entrega acadêmica eles aparecem na tela **Alerts** do Prometheus; o roteamento de notificações por e-mail ou chat exige um Alertmanager e credenciais do ambiente.
 
 ## Acesso
 

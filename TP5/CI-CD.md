@@ -9,10 +9,11 @@ O workflow `.github/workflows/ci-cd.yml` roda testes em pull requests, executa C
 1. Build dos serviços e do frontend.
 2. Testes unitários e de integração.
 3. Geração e upload dos relatórios JaCoCo.
-4. Validação do Docker Compose e renderização dos manifestos Kubernetes.
+4. Validação do Docker Compose e dos manifestos Kubernetes com Kustomize e Kubeconform.
 5. Build paralelo das três imagens Docker.
-6. Publicação no GHCR com tags de SHA, versão e `latest`.
-7. Deploy manual no Kubernetes e espera dos três rollouts.
+6. Varredura de vulnerabilidades altas e críticas nas imagens com Trivy.
+7. Publicação no GHCR, somente após o scan, com tags de SHA, versão e `latest`.
+8. Deploy manual no Kubernetes e espera dos três rollouts.
 
 ## Segredos e ambientes
 

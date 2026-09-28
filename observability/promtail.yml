@@ -21,3 +21,12 @@ scrape_configs:
         target_label: stream
       - source_labels: [__meta_docker_container_label_com_docker_compose_service]
         target_label: service
+    pipeline_stages:
+      - docker: {}
+      - json:
+          expressions:
+            application: application
+            level: level
+      - labels:
+          application:
+          level:

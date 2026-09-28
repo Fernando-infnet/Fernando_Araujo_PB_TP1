@@ -38,6 +38,8 @@ jobs:
           docker compose config --quiet
           kubectl kustomize k8s > /tmp/wallet-platform.yaml
           test -s /tmp/wallet-platform.yaml
+          docker run --rm -i ghcr.io/yannh/kubeconform:v0.6.7 \
+            -strict -summary -ignore-missing-schemas < /tmp/wallet-platform.yaml
       - name: Publicar relatórios de cobertura
         uses: actions/upload-artifact@v4
         with:
@@ -78,11 +80,30 @@ jobs:
         with:
           context: .
           file: ${{ matrix.dockerfile }}
-          push: ${{ github.event_name != 'pull_request' }}
+          push: false
+          load: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+      - name: Verificar vulnerabilidades da imagem
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:${{ steps.meta.outputs.version }}
+          format: table
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: "1"
+      - name: Publicar imagem aprovada
+        if: github.event_name != 'pull_request'
+        env:
+          IMAGE_TAGS: ${{ steps.meta.outputs.tags }}
+        run: |
+          while IFS= read -r tag; do
+            test -z "$tag" || docker push "$tag"
+          done <<EOF
+          $IMAGE_TAGS
+          EOF
 
   deploy:
     if: github.event_name == 'workflow_dispatch'

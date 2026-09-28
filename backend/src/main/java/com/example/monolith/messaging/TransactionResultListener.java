@@ -4,6 +4,7 @@ import static com.example.contracts.MessagingTopology.TRANSACTION_RESULTS_QUEUE;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +16,9 @@ public class TransactionResultListener {
 
     @RabbitListener(queues = TRANSACTION_RESULTS_QUEUE)
     public void receive(TransactionResultEvent event) {
-        log.info("Resultado assíncrono commandId={} status={} transactionId={}",
-                event.commandId(), event.status(), event.transactionId());
+        try (MDC.MDCCloseable ignored = MDC.putCloseable("correlationId", event.correlationId().toString())) {
+            log.info("Resultado assíncrono commandId={} status={} transactionId={}",
+                    event.commandId(), event.status(), event.transactionId());
+        }
     }
 }
