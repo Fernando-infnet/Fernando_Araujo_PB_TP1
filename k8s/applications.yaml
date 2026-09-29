@@ -10,8 +10,11 @@ spec:
     metadata:
       labels: {app: backend}
     spec:
+      enableServiceLinks: false
       securityContext:
         runAsNonRoot: true
+        runAsUser: 100
+        runAsGroup: 101
       containers:
         - name: backend
           image: ghcr.io/OWNER/wallet-service:latest
@@ -58,8 +61,11 @@ spec:
     metadata:
       labels: {app: transaction-service}
     spec:
+      enableServiceLinks: false
       securityContext:
         runAsNonRoot: true
+        runAsUser: 100
+        runAsGroup: 101
       containers:
         - name: transaction-service
           image: ghcr.io/OWNER/transaction-service:latest

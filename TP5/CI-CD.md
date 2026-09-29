@@ -25,4 +25,9 @@ Senhas da aplicação devem ser mantidas no gerenciador de Secrets do cluster, n
 
 ## Evidências
 
-Após enviar os commits ao GitHub, adicionar aqui o link de uma execução verde e mostrar na gravação os jobs `test`, `images` e, quando houver cluster disponível, `deploy`.
+- Workflow publicado: [execução TP5 #2](https://github.com/Fernando-infnet/Fernando_Araujo_PB_TP1/actions/runs/36437185287).
+- O GitHub reconheceu e disparou o workflow no push do commit `064c437`.
+- Após a liberação do runner, o job `test` foi executado e os jobs de imagens falharam ao resolver a referência inexistente `aquasecurity/trivy-action@0.28.0`.
+- A referência foi corrigida para `aquasecurity/trivy-action@v0.36.0`; as actions oficiais foram atualizadas para versões compatíveis com Node.js 24 e o runner foi fixado em `ubuntu-24.04`.
+
+Após publicar este patch, execute novamente o workflow e use a nova execução verde como evidência na apresentação. Mostre os jobs `test`, `images` e, quando houver cluster disponível, `deploy`.

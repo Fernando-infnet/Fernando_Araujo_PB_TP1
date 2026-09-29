@@ -14,6 +14,7 @@
 | `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` | Wallet Service | Sim em PostgreSQL | Conexão do banco de carteiras |
 | `TRANSACTION_DB_URL`, `TRANSACTION_DB_USERNAME`, `TRANSACTION_DB_PASSWORD` | Transaction Service | Sim em PostgreSQL | Conexão do banco de transações |
 | `RABBITMQ_HOST`, `RABBITMQ_USERNAME`, `RABBITMQ_PASSWORD` | Serviços Java | Sim | Conexão AMQP |
+| `TRANSACTION_SERVICE_URL`, `WALLET_SERVICE_URL` | Serviços Java | Sim em contêineres | Descoberta HTTP interna entre os serviços |
 | `ZIPKIN_ENDPOINT` | Serviços Java | Não | Endpoint Zipkin do Tempo |
 | `TRACING_SAMPLE_PROBABILITY` | Serviços Java | Não | Amostragem dos traces; padrão local `1.0` |
 | `VITE_WALLET_API_URL`, `VITE_TRANSACTION_API_URL` | Build do frontend | Não | Rotas públicas das APIs |

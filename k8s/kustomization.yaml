@@ -16,6 +16,8 @@ configMapGenerator:
       - DB_USERNAME=wallet
       - TRANSACTION_DB_URL=jdbc:postgresql://transaction-db:5432/transactions
       - TRANSACTION_DB_USERNAME=transactions
+      - TRANSACTION_SERVICE_URL=http://transaction-service:8081
+      - WALLET_SERVICE_URL=http://backend:8080
       - ZIPKIN_ENDPOINT=http://tempo:9411/api/v2/spans
 secretGenerator:
   - name: wallet-secrets

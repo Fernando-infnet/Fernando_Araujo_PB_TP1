@@ -1,13 +1,37 @@
-function BalanceOverview() {
+import { useMemo, useState } from 'react';
+import { buildBalanceSeries, chartGeometry, PERIODS, transactionTotals, transactionsForPeriod } from '../dashboard-utils';
+
+const currency = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+
+function BalanceOverview({ transactions = [], balance = 0 }) {
+  const [period, setPeriod] = useState('30');
+  const filtered = useMemo(() => transactionsForPeriod(transactions, period), [transactions, period]);
+  const totals = useMemo(() => transactionTotals(filtered), [filtered]);
+  const series = useMemo(() => buildBalanceSeries(transactions, balance, period), [transactions, balance, period]);
+  const geometry = useMemo(() => chartGeometry(series), [series]);
+  const labelIndexes = [0, Math.floor((series.length - 1) / 2), series.length - 1];
+  const labels = labelIndexes.map((index) => series[index]).filter(Boolean);
+  const latest = series.at(-1);
+  const lastPoint = geometry.points.split(' ').at(-1)?.split(',');
+
   return (
-    <section className="balance-card" aria-labelledby="balance-title">
+    <section className="balance-card" id="analytics" aria-labelledby="balance-title">
       <div className="balance-header">
         <h2 id="balance-title">Balance overview</h2>
-        <button type="button">This month <span>⌄</span></button>
+        <label className="period-select">
+          <span className="sr-only">Chart period</span>
+          <select value={period} onChange={(event) => setPeriod(event.target.value)}>
+            {Object.entries(PERIODS).map(([value, option]) => <option key={value} value={value}>{option.label}</option>)}
+          </select>
+        </label>
       </div>
 
       <div className="chart-wrap">
-        <div className="chart-y-axis"><span>R$ 12k</span><span>R$ 9k</span><span>R$ 6k</span><span>R$ 3k</span><span>R$ 0</span></div>
+        <div className="chart-y-axis">
+          <span>{currency.format(geometry.max)}</span>
+          <span>{currency.format((geometry.max + geometry.min) / 2)}</span>
+          <span>{currency.format(geometry.min)}</span>
+        </div>
         <svg className="balance-chart" viewBox="0 0 560 235" preserveAspectRatio="none" aria-label="Balance trend chart">
           <defs>
             <linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1">
@@ -15,23 +39,19 @@ function BalanceOverview() {
               <stop offset="1" stopColor="#14d9ae" stopOpacity="0" />
             </linearGradient>
           </defs>
-          <g className="chart-grid">
-            <path d="M0 18H560M0 69H560M0 120H560M0 171H560M0 222H560" />
-            <path d="M0 0V222M112 0V222M224 0V222M336 0V222M448 0V222M560 0V222" />
-          </g>
-          <path className="chart-area" d="M0 171C25 153 30 137 60 143S92 138 112 111 151 121 168 83 210 76 224 62 259 55 280 72 311 118 336 103 373 96 392 88 420 74 448 76 476 68 512 81 532 45 560 32V222H0Z" />
-          <path className="chart-line" d="M0 171C25 153 30 137 60 143S92 138 112 111 151 121 168 83 210 76 224 62 259 55 280 72 311 118 336 103 373 96 392 88 420 74 448 76 476 68 512 81 532 45 560 32" />
-          <circle className="chart-point-glow" cx="420" cy="74" r="10" />
-          <circle className="chart-point" cx="420" cy="74" r="5" />
+          <g className="chart-grid"><path d="M0 18H560M0 120H560M0 222H560" /><path d="M0 0V222M280 0V222M560 0V222" /></g>
+          <polygon className="chart-area" points={geometry.area} />
+          <polyline className="chart-line" points={geometry.points} />
+          {lastPoint && <circle className="chart-point" cx={lastPoint[0]} cy={lastPoint[1]} r="5" />}
         </svg>
-        <div className="chart-tooltip"><small>23 Nov</small><strong><i /> R$ 8.450,00</strong></div>
-        <div className="chart-x-axis"><span>1 Nov</span><span>6 Nov</span><span>11 Nov</span><span>16 Nov</span><span>21 Nov</span><span>26 Nov</span><span>30 Nov</span></div>
+        <div className="chart-tooltip"><small>{latest?.date || 'No data'}</small><strong><i /> {currency.format(latest?.balance || 0)}</strong></div>
+        <div className="chart-x-axis">{labels.map((point, index) => <span key={`${point.date}-${index}`}>{new Date(`${point.date}T12:00:00`).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}</span>)}</div>
       </div>
 
       <div className="balance-summary">
-        <div><span><i className="income" />Income</span><strong>R$ 2.300,00</strong></div>
-        <div><span><i className="expense" />Expenses</span><strong>R$ 1.140,00</strong></div>
-        <div><span><i className="net" />Net Flow</span><strong>R$ 1.160,00</strong></div>
+        <div><span><i className="income" />Income</span><strong>{currency.format(totals.income)}</strong></div>
+        <div><span><i className="expense" />Expenses</span><strong>{currency.format(totals.expense)}</strong></div>
+        <div><span><i className="net" />Net Flow</span><strong>{currency.format(totals.income - totals.expense)}</strong></div>
       </div>
     </section>
   );

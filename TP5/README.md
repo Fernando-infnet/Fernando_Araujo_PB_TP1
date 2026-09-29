@@ -28,3 +28,7 @@ O vídeo deverá mostrar a conteinerização, implantação no Kubernetes, escal
 - [x] Pipeline de CI/CD versionado.
 - [x] Testes automatizados e smoke test implementados.
 - [ ] Vídeo gravado, publicado e vinculado acima.
+
+## Validação mais recente
+
+Em 28/09/2026, os testes Java e frontend, o build, os 24 recursos Kubernetes, a pilha Docker completa, o fluxo integrado do smoke test e os três targets do Prometheus foram validados localmente. A primeira execução completa do workflow revelou uma referência inválida do Trivy; o patch está documentado em [CI-CD.md](CI-CD.md) e requer uma nova execução no GitHub após o push.

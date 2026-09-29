@@ -1,28 +1,18 @@
 # Wallet / Plataforma Bancária Digital
 
-## Vídeo do TP3
+## VÍDEO SOBRE PROJETO
 
 [![Veja o vídeo](https://img.youtube.com/vi/KcNkJDCJnZY/maxresdefault.jpg)](https://youtu.be/KcNkJDCJnZY)
 *Clique para acessar o vídeo*
-
-## ENTREGAS TP4 E TP5
-
-- [TP4 — Arquitetura orientada a eventos](TP4/README.md)
-- [TP5 — Implantação e manutenção em produção](TP5/README.md)
-
-Cada pasta possui sua documentação, checklist e espaço destacado para o vídeo da respectiva demonstração.
-
-> Os vídeos do TP4 e do TP5 ainda precisam ser gravados pelo autor e vinculados no `README.md` de cada entrega.
 
 Monólito Spring Boot + React cujo domínio inicial é uma carteira digital. O objetivo atual não é reproduzir um banco completo: é entregar uma base pequena e consistente para usuários, carteiras e lançamentos, preparada para evoluir em trabalhos posteriores.
 
 ## Objetivo e evolução
 
 - **TP1:** monólito em camadas e API REST para contas e transações.
-- **TP2:** persistência JPA/Spring Data, integridade, consultas e histórico auditável.
-- **TP3:** extração das transações para um microsserviço independente.
-- **TP4:** comunicação orientada a eventos com RabbitMQ, Outbox, retry, DLQ e idempotência.
-- **TP5:** Docker, Kubernetes, observabilidade com Grafana/Prometheus/Loki/Tempo e CI/CD.
+- **TP2 (estado atual):** persistência JPA/Spring Data, integridade, consultas e histórico auditável.
+- **TP3:** separação gradual por módulos e possível extração de transações como microsserviço.
+- **Futuro:** autenticação/autorização, observabilidade, antifraude e arquitetura distribuída.
 
 ## Design da persistência
 
@@ -99,15 +89,6 @@ Outros endpoints:
 
 ## Execução
 
-### Plataforma completa do TP5
-
-```bash
-docker compose up -d --build
-./scripts/smoke-test.sh
-```
-
-A aplicação fica em `http://localhost:3000`. Consulte [TP5/README.md](TP5/README.md) para implantação, operação e demonstração.
-
 ### Desenvolvimento rápido com H2 persistente
 
 ```bash
@@ -136,8 +117,6 @@ npm install
 npm run dev
 ```
 
-A interface apresenta saldo, totais e atividade recente, permite registrar créditos, débitos, envios e pagamentos PIX pelas ações rápidas e informa a disponibilidade do microsserviço de transações. Todos os controles da tela principal têm comportamento definido: a navegação leva às seções, o gráfico usa dados reais e permite trocar o período, o seletor alterna entre carteiras, notificações abrem os lançamentos recentes e o perfil pode ser atualizado pela API. O extrato pode ser pesquisado por descrição ou valor, filtrado por tipo, excluído com confirmação e exportado em CSV.
-
 ## Testes automatizados
 
 ```bash
@@ -149,4 +128,4 @@ Os testes usam H2 isolado em memória e recriam o schema. A suíte demonstra ini
 
 ## Limites conscientes do escopo
 
-A plataforma ainda não implementa autenticação e autorização por proprietário, transferência atômica entre carteiras, estorno contábil, categorias, lançamentos agendados ou integração com instituições financeiras. A mensageria possui idempotência por evento e comando, mas a API pública ainda precisaria de uma chave de idempotência própria. Em um sistema financeiro real, lançamentos não seriam apagados: seriam compensados por um novo lançamento. Esses pontos pertencem à evolução planejada, não ao MVP acadêmico atual.
+Esta entrega ainda não implementa transferência atômica entre carteiras, autenticação, autorização por proprietário, estorno contábil, idempotência ou migrations versionadas. Em um sistema financeiro real, lançamentos não seriam apagados: seriam compensados por um novo lançamento. Esses pontos pertencem à evolução planejada, não ao MVP acadêmico atual.

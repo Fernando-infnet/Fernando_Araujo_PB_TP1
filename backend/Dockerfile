@@ -1,6 +1,12 @@
 FROM maven:3.9.9-eclipse-temurin-17 AS build
 WORKDIR /workspace
-COPY . .
+COPY pom.xml ./
+COPY messaging-contracts/pom.xml messaging-contracts/pom.xml
+COPY backend/pom.xml backend/pom.xml
+COPY transaction-service/pom.xml transaction-service/pom.xml
+RUN mvn -pl backend -am dependency:go-offline -DskipTests
+COPY messaging-contracts/src messaging-contracts/src
+COPY backend/src backend/src
 RUN mvn -pl backend -am package -DskipTests
 
 FROM eclipse-temurin:17-jre-alpine

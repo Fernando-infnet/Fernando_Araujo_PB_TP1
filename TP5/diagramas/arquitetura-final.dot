@@ -1,0 +1,116 @@
+digraph WalletPlatform {
+  graph [
+    rankdir=LR,
+    bgcolor="#061728",
+    pad="0.35",
+    nodesep="0.42",
+    ranksep="0.85",
+    splines=polyline,
+    fontname="Arial",
+    fontcolor="#DDEBE8",
+    label="WALLET PLATFORM  •  ARQUITETURA FINAL TP3 — TP5",
+    labelloc="t",
+    fontsize=22
+  ];
+
+  node [
+    shape=box,
+    style="rounded,filled",
+    fontname="Arial",
+    fontsize=11,
+    fontcolor="#EAF5F3",
+    color="#2D5368",
+    fillcolor="#0A2235",
+    penwidth=1.3,
+    margin="0.16,0.10"
+  ];
+
+  edge [
+    fontname="Arial",
+    fontsize=9,
+    fontcolor="#9CB6B4",
+    color="#4E7A82",
+    penwidth=1.25,
+    arrowsize=0.7
+  ];
+
+  user [label="USUÁRIO\nBrowser", shape=circle, width=1.05, height=1.05, fillcolor="#123C47", color="#42F59E", penwidth=2];
+
+  subgraph cluster_platform {
+    label="APLICAÇÃO CONTEINERIZADA  •  Docker / Kubernetes";
+    color="#24485E";
+    fontcolor="#7FA3AB";
+    fontsize=11;
+    style="rounded,dashed";
+    penwidth=1.2;
+    margin=20;
+
+    frontend [label="FRONTEND\nReact + Nginx", fillcolor="#0B3041", color="#42F59E", penwidth=1.8];
+
+    subgraph cluster_wallet {
+      label="Domínio de carteiras";
+      color="#1E4655";
+      fontcolor="#7399A0";
+      style="rounded";
+      wallet [label="WALLET SERVICE\nSpring Boot\nusuários • carteiras • outbox", fillcolor="#0A2938", color="#23DDB7", penwidth=1.7];
+      walletdb [label="WALLET DB\nPostgreSQL", shape=cylinder, fillcolor="#102D40", color="#36A9C4"];
+      outbox [label="OUTBOX\nwallet.created.v1", shape=folder, fillcolor="#11333C", color="#42D6B5"];
+      wallet -> walletdb [label="JPA"];
+      wallet -> outbox [label="mesma transação", color="#32CDAA"];
+    }
+
+    rabbit [label="RABBITMQ\nexchanges • filas • retry • DLQ", shape=hexagon, fillcolor="#3B2A17", color="#E7A94D", penwidth=1.8];
+
+    subgraph cluster_transactions {
+      label="Domínio de transações";
+      color="#1E4655";
+      fontcolor="#7399A0";
+      style="rounded";
+      transaction [label="TRANSACTION SERVICE\nSpring Boot\nledger • saldo • histórico", fillcolor="#0A2938", color="#23DDB7", penwidth=1.7];
+      transactiondb [label="TRANSACTION DB\nPostgreSQL", shape=cylinder, fillcolor="#102D40", color="#36A9C4"];
+      transaction -> transactiondb [label="JPA / Envers"];
+    }
+
+    dlq [label="DEAD-LETTER\nwallet.dead-letter", shape=folder, fillcolor="#3A1D2A", color="#D77C9B"];
+  }
+
+  subgraph cluster_observability {
+    label="OBSERVABILIDADE";
+    color="#24485E";
+    fontcolor="#7FA3AB";
+    fontsize=11;
+    style="rounded,dashed";
+    penwidth=1.2;
+    margin=18;
+
+    prometheus [label="PROMETHEUS\nmétricas", fillcolor="#38251B", color="#E36D3A"];
+    promtail [label="PROMTAIL\ncoleta de logs", fillcolor="#172E3B", color="#6BA9BC"];
+    loki [label="LOKI\nlogs agregados", fillcolor="#26351B", color="#93C84B"];
+    tempo [label="TEMPO\ntraces distribuídos", fillcolor="#2C203C", color="#A98AD6"];
+    grafana [label="GRAFANA\ndashboards • logs • traces", fillcolor="#3A2517", color="#F4A340", penwidth=1.8];
+
+    promtail -> loki [color="#93C84B"];
+    prometheus -> grafana [label="datasource", color="#E36D3A"];
+    loki -> grafana [label="datasource", color="#93C84B"];
+    tempo -> grafana [label="datasource", color="#A98AD6"];
+  }
+
+  user -> frontend [label="HTTPS"];
+  frontend -> wallet [label="REST\nusuários / carteiras", color="#42D6B5"];
+  frontend -> transaction [label="REST\ntransações / saldo", color="#42D6B5"];
+
+  outbox -> rabbit [label="wallet.created.v1", color="#E7A94D"];
+  wallet -> rabbit [label="transaction.create.v1", color="#E7A94D"];
+  rabbit -> transaction [label="eventos + comandos", color="#E7A94D"];
+  transaction -> rabbit [label="created / rejected", color="#E7A94D"];
+  rabbit -> wallet [label="resultado", color="#E7A94D"];
+  rabbit -> dlq [label="após 3 falhas", color="#D77C9B"];
+
+  wallet -> prometheus [style=dashed, color="#E36D3A"];
+  transaction -> prometheus [style=dashed, color="#E36D3A"];
+  rabbit -> prometheus [style=dashed, color="#E36D3A"];
+  wallet -> promtail [style=dashed, color="#6BA9BC"];
+  transaction -> promtail [style=dashed, color="#6BA9BC"];
+  wallet -> tempo [style=dashed, color="#A98AD6"];
+  transaction -> tempo [style=dashed, color="#A98AD6"];
+}

@@ -12,6 +12,7 @@
 - [x] Requests e limits
 - [x] Horizontal Pod Autoscaler
 - [x] Persistência dos componentes stateful
+- [x] Coletor de traces Tempo acessível pelos microsserviços
 
 ## Arquitetura do cluster
 
@@ -24,6 +25,8 @@ flowchart TB
     T --> TDB[(Transaction PostgreSQL + PVC)]
     W <--> R[(RabbitMQ + PVC)]
     T <--> R
+    W --> O[Tempo]
+    T --> O
     HPA[HPA por CPU] -.-> W
     HPA -.-> T
 ```
@@ -35,6 +38,8 @@ Os arquivos estão em `k8s/` e são compostos pelo Kustomize. Use `kubectl kusto
 ## Escalabilidade e atualização
 
 Wallet e Transaction Service começam com duas réplicas. O HPA escala cada um entre duas e cinco réplicas quando a utilização média de CPU ultrapassa 70%. Requests permitem o cálculo do HPA, limits evitam consumo sem limite, startup probes protegem a inicialização, readiness probes impedem tráfego antes da prontidão e liveness probes reiniciam processos travados. Deployments usam rolling update por padrão e mantêm o histórico necessário para `kubectl rollout undo`.
+
+O cluster também implanta um receptor Tempo para que `ZIPKIN_ENDPOINT=http://tempo:9411/api/v2/spans` seja resolvido dentro do namespace. A interface completa de exploração (Grafana, Prometheus, Loki e Promtail) é executada pelo perfil de demonstração do Docker Compose; em um cluster real, esses componentes podem ser substituídos pela pilha de observabilidade gerenciada da plataforma.
 
 ## Evidências
 

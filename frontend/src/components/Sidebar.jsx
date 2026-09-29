@@ -1,6 +1,6 @@
 const navigation = [
   { label: 'Dashboard', icon: 'home' },
-  { label: 'Wallet', icon: 'wallet', active: true },
+  { label: 'Wallet', icon: 'wallet' },
   { label: 'Transactions', icon: 'arrows' },
   { label: 'Recipients', icon: 'users' },
   { label: 'Analytics', icon: 'chart' },
@@ -24,7 +24,11 @@ function Icon({ name }) {
   );
 }
 
-function Sidebar() {
+function initials(name = '') {
+  return name.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]).join('').toUpperCase() || 'U';
+}
+
+function Sidebar({ activeSection = 'Dashboard', user, onNavigate, onHelp, onLogout }) {
   return (
     <aside className="sidebar">
       <div className="logo-slot" aria-label="Logo placeholder">
@@ -42,11 +46,11 @@ function Sidebar() {
       <nav className="sidebar-nav" aria-label="Main navigation">
         {navigation.map((item) => (
           <button
-            className={`nav-item${item.active ? ' active' : ''}`}
+            className={`nav-item${activeSection === item.label ? ' active' : ''}`}
             type="button"
             key={item.label}
-            aria-current={item.active ? 'page' : undefined}
-            disabled={!item.active}
+            aria-current={activeSection === item.label ? 'page' : undefined}
+            onClick={() => onNavigate(item.label)}
           >
             <Icon name={item.icon} />
             <span>{item.label}</span>
@@ -55,22 +59,22 @@ function Sidebar() {
       </nav>
 
       <div className="sidebar-footer">
-        <button className="support-button" type="button">
+        <button className="support-button" type="button" onClick={onHelp}>
           <span className="help-icon">?</span>
           Help &amp; Support
         </button>
 
         <div className="profile-card">
-          <span className="avatar">FD</span>
+          <span className="avatar">{initials(user?.name)}</span>
           <span className="profile-copy">
-            <strong>Fernando Dev</strong>
-            <small>fer.dev@email.com</small>
+            <strong>{user?.name || 'Loading user...'}</strong>
+            <small>{user?.email || 'Connecting...'}</small>
           </span>
         </div>
 
-        <button className="logout-button" type="button">
+        <button className="logout-button" type="button" onClick={onLogout}>
           <span aria-hidden="true">↪</span>
-          Log out
+          Refresh session
         </button>
       </div>
     </aside>

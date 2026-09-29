@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const actions = [
   { key: 'send', label: 'Send', description: 'Send money', type: 'DEBIT', icon: '↗', svg: <><path d="M5 11.5 20 4l-7.5 15-2.2-6.3L5 11.5Z"/><path d="m10.3 12.7 4.1-4.1"/></> },
@@ -19,17 +19,26 @@ function ActionIcon({ action }) {
   );
 }
 
-function QuickActions({ onCreate }) {
+function QuickActions({ onCreate, requestedAction, onActionOpened, onViewHistory }) {
   const [selected, setSelected] = useState(null);
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
+  const [recipient, setRecipient] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [actionError, setActionError] = useState('');
+
+  useEffect(() => {
+    if (!requestedAction) return;
+    const requested = actions.find((action) => action.key === requestedAction);
+    if (requested) setSelected(requested);
+    onActionOpened?.();
+  }, [requestedAction, onActionOpened]);
 
   function closeForm() {
     setSelected(null);
     setAmount('');
     setDescription('');
+    setRecipient('');
     setActionError('');
   }
 
@@ -39,7 +48,8 @@ function QuickActions({ onCreate }) {
     setSubmitting(true);
     setActionError('');
     try {
-      await onCreate({ type: selected.type, amount: Number(amount), description: description || selected.description });
+      const recipientDescription = recipient ? `${selected.label} to ${recipient}` : selected.description;
+      await onCreate({ type: selected.type, amount: Number(amount), description: description || recipientDescription });
       closeForm();
     } catch (error) {
       setActionError(error.message);
@@ -60,7 +70,7 @@ function QuickActions({ onCreate }) {
           </button>
         ))}
       </div>
-      <button type="button" className="all-actions-button">View all actions </button>
+      <button type="button" className="all-actions-button" onClick={onViewHistory}>View transaction history</button>
 
 
 
@@ -71,7 +81,10 @@ function QuickActions({ onCreate }) {
             <ActionIcon action={selected} />
             <h3>{selected.label} money</h3>
             <p>{selected.type === 'DEBIT' ? 'Create an outgoing transaction.' : 'Create an incoming transaction.'}</p>
-            <label>Amount (R$)<input autoFocus type="number" min="0.01" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} required /></label>
+            {(selected.key === 'send' || selected.key === 'pix') && (
+              <label>{selected.key === 'pix' ? 'PIX key' : 'Recipient'}<input autoFocus value={recipient} onChange={(e) => setRecipient(e.target.value)} placeholder={selected.key === 'pix' ? 'Email, phone or random key' : 'Recipient name'} required /></label>
+            )}
+            <label>Amount (R$)<input autoFocus={selected.key !== 'send' && selected.key !== 'pix'} type="number" min="0.01" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} required /></label>
             <label>Description<input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Optional description" /></label>
             {actionError && <p className="dialog-error" role="alert">{actionError}</p>}
             <button className="dialog-submit" type="submit" disabled={submitting}>{submitting ? 'Processing...' : `Confirm ${selected.label}`}</button>
