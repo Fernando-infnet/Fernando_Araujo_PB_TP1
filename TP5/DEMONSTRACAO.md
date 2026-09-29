@@ -315,7 +315,7 @@ Não corte a aplicação funcionando, o dashboard do Grafana, o Kubernetes nem o
 - [ ] Git e documentação são mencionados.
 - [ ] Nenhum token, Secret ou kubeconfig aparece.
 - [ ] A gravação fica entre 7 e 10 minutos.
-- [ ] O link do vídeo é adicionado aos READMEs depois da publicação.
+- [ ] O link do vídeo final está no topo do README principal.
 
 ## Comandos de emergência
 
@@ -336,4 +336,4 @@ docker compose restart grafana
 docker compose logs --tail=50 backend transaction-service
 ```
 
-Após a gravação, publique o vídeo em um local acessível ao avaliador e substitua o marcador em `TP4/README.md` e `TP5/README.md`. Não é necessário gerar PDF.
+Após a gravação, publique o vídeo em um local acessível ao avaliador e atualize somente o bloco de vídeo no topo do `README.md` principal. Não é necessário gerar PDF.

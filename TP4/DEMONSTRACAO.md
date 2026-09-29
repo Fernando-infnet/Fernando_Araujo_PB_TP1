@@ -58,4 +58,4 @@ Os comandos `stop` e `start` se aplicam ao modo totalmente containerizado. Se os
 
 ## Evidências
 
-O vídeo deve mostrar a tela, o painel do RabbitMQ, os logs com identificadores das mensagens e o resultado dos testes. Depois da gravação, publique o arquivo em um local acessível ao avaliador e substitua o marcador em [README.md](README.md). Esta é a única etapa desta entrega que exige execução manual fora do repositório.
+O vídeo deve mostrar a tela, o painel do RabbitMQ, os logs com identificadores das mensagens e o resultado dos testes. A apresentação audiovisual do projeto é centralizada no [README principal](../README.md), sem um vídeo separado para o TP4.

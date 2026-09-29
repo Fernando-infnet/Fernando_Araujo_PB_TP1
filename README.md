@@ -1,18 +1,17 @@
 # Wallet / Plataforma Bancária Digital
 
-## Vídeo do TP3
+## Vídeo da apresentação
 
-[![Veja o vídeo](https://img.youtube.com/vi/KcNkJDCJnZY/maxresdefault.jpg)](https://youtu.be/KcNkJDCJnZY)
-*Clique para acessar o vídeo*
+[![Veja a apresentação final da Safe Wallet](https://img.youtube.com/vi/CO__qgEfpoQ/maxresdefault.jpg)](https://youtu.be/CO__qgEfpoQ)
+
+*Clique para acessar o vídeo. A apresentação audiovisual do projeto é centralizada neste README.*
 
 ## ENTREGAS TP4 E TP5
 
 - [TP4 — Arquitetura orientada a eventos](TP4/README.md)
 - [TP5 — Implantação e manutenção em produção](TP5/README.md)
 
-Cada pasta possui sua documentação, checklist e espaço destacado para o vídeo da respectiva demonstração.
-
-> Os vídeos do TP4 e do TP5 ainda precisam ser gravados pelo autor e vinculados no `README.md` de cada entrega.
+Cada pasta possui sua documentação e seu checklist técnico. O vídeo é apresentado apenas no topo deste README para evitar links duplicados entre as entregas.
 
 Monólito Spring Boot + React cujo domínio inicial é uma carteira digital. O objetivo atual não é reproduzir um banco completo: é entregar uma base pequena e consistente para usuários, carteiras e lançamentos, preparada para evoluir em trabalhos posteriores.
 

@@ -236,7 +236,7 @@ function App() {
           </div>
 
           <div className="wallet-heading-row" id="wallet">
-            <div><h1>Wallet</h1><p>Manage your assets and transactions.</p></div>
+            <div><h1>Safe Wallet</h1><p>Manage your assets and transactions.</p></div>
             <label className="wallet-selector">
               <svg className="wallet-selector-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5h14a2 2 0 0 1 2 2v10H4a2 2 0 0 1-2-2v-12a2 2 0 0 1 2-2h13" /><path d="M16 11h6v5h-6a2.5 2.5 0 0 1 0-5Z" /></svg>
               <span className="sr-only">Select wallet</span>
